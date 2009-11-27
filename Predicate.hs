@@ -13,6 +13,7 @@ data Predicate = Value Identifier
                | And Predicate Predicate
                | Or Predicate Predicate
                | Implicates Predicate Predicate
+               | Equals Predicate Predicate
                deriving (Eq, Ord)
 
 instance Show Predicate where
@@ -24,6 +25,7 @@ showPredicate (Not x) = "~" ++ (showPredicate x)
 showPredicate (And x y) = "(" ++ (showPredicate x) ++ " && " ++ (showPredicate y) ++ ")"
 showPredicate (Or x y) = "(" ++ (showPredicate x) ++ " || " ++ (showPredicate y) ++ ")"
 showPredicate (Implicates x y) = "(" ++ (showPredicate x) ++ " -> " ++ (showPredicate y) ++ ")"
+showPredicate (Equals x y) = "(" ++ (showPredicate x) ++ " == " ++ (showPredicate y) ++ ")"
 
 readPredicate :: String -> Maybe Predicate
 readPredicate str = let r = runParser parsePredicate () "input" str
@@ -37,7 +39,8 @@ parsePredicate = buildExpressionParser table parsePredicateTerm
 table :: OperatorTable Char () Predicate
 table = [ [unary "~" Not],
           [binary "&&" And, binary "||" Or],
-          [binary "->" Implicates]
+          [binary "->" Implicates],
+          [binary "==" Equals]
         ]
     where unary  str f = Prefix $ string str >> return f
           binary str f = Infix (string str >> return f) AssocLeft

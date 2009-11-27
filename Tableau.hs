@@ -56,6 +56,7 @@ simplifyTableauLeft (Tableau l r lv rv) p =
               (And x y) -> [Tableau (x:y:l) r lv rv]
               (Or x y) -> [Tableau (x:l) r lv rv, Tableau (y:l) r lv rv]
               (Implicates x y) -> [Tableau (y:l) r lv rv, Tableau l (x:r) lv rv]
+              (Equals x y) -> [Tableau (x:y:l) r lv rv, Tableau l (x:y:r) lv rv]
 
 simplifyTableauRight :: Tableau -> Predicate -> [Tableau]
 simplifyTableauRight (Tableau l r lv rv) p =
@@ -64,4 +65,5 @@ simplifyTableauRight (Tableau l r lv rv) p =
               (And x y) -> [Tableau l (x:r) lv rv, Tableau l (y:r) lv rv]
               (Or x y) -> [Tableau l (x:y:r) lv rv]
               (Implicates x y) -> [Tableau (x:l) (y:r) lv rv]
+              (Equals x y) -> [Tableau (x:l) (y:r) lv rv, Tableau (y:l) (x:r) lv rv]
 
