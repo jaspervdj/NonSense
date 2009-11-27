@@ -37,6 +37,13 @@ findCounterExample t@(Tableau l v lv rv)
     | P.null l && P.null v = Just t
     | otherwise = foldr mplus Nothing $ P.map findCounterExample $ simplifyTableau t
 
+prettifyCounterExample :: Maybe Tableau -> String
+prettifyCounterExample Nothing = "No counterexample found."
+prettifyCounterExample (Just t) = unlines $ left ++ right
+    where left = (assign (leftValues t) False)
+          right = (assign (rightValues t) True)
+          assign set value = L.map (++ " = " ++ show value) (toList set)
+
 simplifyTableau :: Tableau -> [Tableau]
 simplifyTableau (Tableau [] [] lv rv) = []
 simplifyTableau (Tableau [] r lv rv) = simplifyTableauRight (Tableau [] (tail r) lv rv) (head r)
@@ -48,6 +55,7 @@ simplifyTableauLeft (Tableau l r lv rv) p =
               (Not x) -> [Tableau l (x:r) lv rv]
               (And x y) -> [Tableau (x:y:l) r lv rv]
               (Or x y) -> [Tableau (x:l) r lv rv, Tableau (y:l) r lv rv]
+              (Implicates x y) -> [Tableau (y:l) r lv rv, Tableau l (x:r) lv rv]
 
 simplifyTableauRight :: Tableau -> Predicate -> [Tableau]
 simplifyTableauRight (Tableau l r lv rv) p =
@@ -55,3 +63,5 @@ simplifyTableauRight (Tableau l r lv rv) p =
               (Not x) -> [Tableau (x:l) r lv rv]
               (And x y) -> [Tableau l (x:r) lv rv, Tableau l (y:r) lv rv]
               (Or x y) -> [Tableau l (x:y:r) lv rv]
+              (Implicates x y) -> [Tableau (x:l) (y:r) lv rv]
+
