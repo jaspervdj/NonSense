@@ -1,9 +1,14 @@
-module Tableau where
+module Tableau ( Tableau,
+                 readTableau,
+                 createTableau,
+                 findCounterExample
+               ) where
 
 import Predicate
 import Prelude as P
 import Data.Set as S
 import Data.List as L
+import Data.Maybe
 import Control.Monad
 
 data Tableau = Tableau { leftTableau :: [Predicate],
@@ -18,6 +23,10 @@ instance Show Tableau where
 showTableau :: Tableau -> String
 showTableau (Tableau l r lv rv) = (side l lv) ++ " . " ++ (side r rv)
     where side x xv = intercalate ", " $ (P.map show x) ++ (toList xv)
+
+readTableau :: [String] -> [String] -> Tableau
+readTableau left right = createTableau (readAll left) (readAll right)
+    where readAll = fromMaybe [] . sequence . L.map readPredicate
 
 createTableau :: [Predicate] -> [Predicate] -> Tableau
 createTableau left right = Tableau left right S.empty S.empty
